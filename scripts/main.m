@@ -1,14 +1,4 @@
 function main()
-    %%%
-    %Before:
-    %Execute: path(path, 'C:\Program Files\MATLAB\robot-9.10')
-    %Execute (from rvc_tools folder): startup_rvc
-    %
-    %After:
-    %With Bulk Rename Utility, put all files in same folder (0400.png)
-    %In Terminal: ffmpeg -r 10 -i %04d.png out.avi
-    %%%
-
     %Global parameters
     point_num = 1000; %number points desired in final trajectory
     span = 0.15; %affects the smoothness of the data
