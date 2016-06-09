@@ -5,6 +5,7 @@
 * Plots the components and 3D trajectories
 * Simulates the movement of the robot along the trajectories (can convert to avi)
 * Currently using Puma 560 robot for simulation because of dedicated inverse kinematic function
+
 **See results folder for plots and videos**
 
 ###Prerequisites
