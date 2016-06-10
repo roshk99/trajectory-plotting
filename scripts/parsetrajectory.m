@@ -27,6 +27,9 @@ function data_vars = get_raw_trajectories(set_num)
     elseif set_num == 2
         load dataset2;
         raw_vars = {dataset2_4, dataset2_5, dataset2_6, dataset2_7};
+    elseif set_num == 3
+        load dataset3;
+        raw_vars = {dataset3_1, dataset3_4, dataset3_5, dataset3_6, dataset3_7};
     else
         fprintf('Error Occurred - Dataset %i not available', set_num);
         return;

@@ -4,7 +4,7 @@
 * Extracts position data, shifts, cuts, resizes, and smooths it
 * Plots the components and 3D trajectories
 * Simulates the movement of the robot along the trajectories (can convert to avi)
-* Currently using Puma 560 robot for simulation because of dedicated inverse kinematic function
+* Using optimization function for inverse kinematics of Jaco (it finds the elbow-down configuration and is not perfectly accurate)
 
 **See results folder for plots and videos**
 
