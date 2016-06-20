@@ -1,5 +1,6 @@
 function values = boundary_calculation(data, set_num, ...
-    canalview, howmany, idx1, idx2, plotSurface, fit_type, canal_method)
+    canalview, howmany, idx1, idx2, plotSurface, fit_type, canal_method, ...
+    plot_method)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates a canal surface
 %
@@ -18,6 +19,7 @@ function values = boundary_calculation(data, set_num, ...
 %             desired
 %   canal_method: 1 or 2 depending on which method to create the canal is
 %                 used
+%   plot_method: 'circles' or 'surface' based on desired plot
 %
 % Output:
 %   values: cell with various canal surface parameters
@@ -55,21 +57,21 @@ end
 B = calculate_mean(allXs, allYs, allZs);
 
 %Finds the boundary values (radii and orientation vectors)
-if strcmp(fit_type, 'circle')
+if strcmp(fit_type, 'circles')
     if canal_method == 1
         [Router, xyz_distance] = find_boundaries([B(2).xmean, ...
             B(2).ymean, B(2).zmean], allXs, allYs, allZs);
     else
-        [Router, xyz_distance, vect_a, vect_b] = find_boundaries2([B(2).xmean, ...
-            B(2).ymean, B(2).zmean], allXs, allYs, allZs);
+        [Router, xyz_distance, vect_a, vect_b] = find_boundaries2(...
+            [B(2).xmean,B(2).ymean, B(2).zmean], allXs, allYs, allZs);
     end
     
     if plotBoundaries
         plot_boundaries(data, B, xyz_distance, numDemos, threshold);
     end
-elseif strcmp(fit_type, 'ellipse')
-    [R1, R2, alpha, vect_a, vect_b] = find_boundaries_ellipse([B(2).xmean, ...
-        B(2).ymean, B(2).zmean], allXs, allYs, allZs);
+elseif strcmp(fit_type, 'ellipses')
+    [R1, R2, alpha, vect_a, vect_b] = find_boundaries_ellipse(...
+        [B(2).xmean, B(2).ymean, B(2).zmean], allXs, allYs, allZs);
 end
 
 
@@ -83,13 +85,13 @@ zz2 = B(2).zmean(idx1:end-idx2);
 values = struct([]);
 
 %Get the canal surface depending on the fit type
-if strcmp(fit_type, 'circle')
+if strcmp(fit_type, 'circles')
     RRouter = Router(idx1:end-idx2);
     
     if canal_method == 1
         [~,canal,T,~,~,N2,B2] = ...
-        canalSurface(tt,xx2,yy2,zz2,RRouter,plotSurface_internal,...
-        filterSurface_internal);
+            canalSurface(tt,xx2,yy2,zz2,RRouter,plotSurface_internal,...
+            filterSurface_internal);
     else
         vect_a = vect_a(idx1:end-idx2, :);
         vect_b = vect_b(idx1:end-idx2, :);
@@ -100,21 +102,21 @@ if strcmp(fit_type, 'circle')
     
     values(1).Router = Router(idx1:end-idx2);
     values(1).xyz_distance = xyz_distance;
-elseif strcmp(fit_type, 'ellipse')
+elseif strcmp(fit_type, 'ellipses')
     RR1 = R1(idx1:end-idx2);
     RR2 = R2(idx1:end-idx2);
     Ralpha = alpha(idx1:end-idx2);
     Rvect_a = vect_a(idx1:end-idx2,:);
     Rvect_b = vect_b(idx1:end-idx2,:);
     [canal,T,~,~,N2,B2] = ...
-        canalSurface_ellipse(tt,xx2,yy2,zz2,RR1,RR2,Ralpha,Rvect_a,Rvect_b,plotSurface_internal,...
-        filterSurface_internal, canal_method);
+        canalSurface_ellipse(tt,xx2,yy2,zz2,RR1,RR2,Ralpha,Rvect_a,...
+        Rvect_b,plotSurface_internal,filterSurface_internal, canal_method);
 end
 
 %Plot the canal surface
 if plotSurface
-    plot_surface(xx2, yy2, zz2, data, canal, ...
-        canalview, set_num, numDemos)
+    plot_surface(xx2, yy2, zz2, data, canal, canalview, set_num, ...
+        numDemos, fit_type, canal_method, plot_method)
 end
 
 %Populate remainig values into output cell
@@ -202,25 +204,31 @@ hold off;
 end
 
 function plot_surface(xx2, yy2, zz2, data, canal, canalview, ...
-    set_num, numDemos)
+    set_num, numDemos, fit_type, canal_method, plot_method)
 %Plots the canal surface
 
 figure;hold on;
-for kk = 1:size(canal,3)
-    C = canal(:,:,kk);
-    plot3(C(1,:),C(2,:),C(3,:),'k');
+if strcmp('circles', plot_method)
+    for kk = 1:size(canal,3)
+        C = canal(:,:,kk);
+        plot3(C(1,:),C(2,:),C(3,:),'k');
+    end
+else
+    surf(squeeze(canal(1,:,:)), squeeze(canal(2,:,:)), ...
+        squeeze(canal(3,:,:)));
+    shading interp;
+    alpha 0.5;
+    colormap bone;
 end
+
 plot3(xx2,yy2,zz2,'b','linewidth',2);
-%     surf(squeeze(canal(1,:,:)), squeeze(canal(2,:,:)), squeeze(canal(3,:,:)));
-%     shading interp;
-%     alpha 0.5;
-%     colormap bone;
 
 for ii=1:numDemos
     plot3(data{ii}(:,1), data{ii}(:,2), data{ii}(:,3),'r',...
         'linewidth',2);
 end
-title(sprintf('Set %i - Canal Surface', set_num));
+title(sprintf('Set %i - Canal Surface using %s - Method %i', set_num, ...
+    fit_type, canal_method));
 xlabel('X'); ylabel('Y'); zlabel('Z');
 axis square
 view(canalview);

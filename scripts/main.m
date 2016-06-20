@@ -10,13 +10,14 @@ plotSurface = true; %plotting canal surface
 plotNewTrajectories = false; %plotting generated trajectories
 record_bool = false; %whether to capture the animation
 q0 = [123 -173 81.3 90 -90 0]*pi/180; %initial position guess
-                                      %for inverse kinematics
+%for inverse kinematics
 
-set_to_run = 0; %Which set of data to run
-fit_type = 'circle';
-canal_method = 2;
+set_to_run = 3; %0-3
+fit_type = 'circles'; %circles or ellipses
+canal_method = 1; %1 or 2
+plot_method = 'circles'; %circles or surface
 
-if set_to_run == 0 %Artificial data    
+if set_to_run == 0 %Artificial data
     % Demo-1
     t = linspace(-2,2,100)';
     x1 = t;
@@ -37,9 +38,9 @@ if set_to_run == 0 %Artificial data
     
     data = {[x1 y1 z1], [x2 y2 z2], [x3 y3 z3], [x4 y4 z4]};
     
-    traj1 = create_trajectory(data, 1, 0, 1, ...
-        [1 2 4], [-15.2 -58.0], true, 10, plotSurface, ...
-        plotNewTrajectories, fit_type, canal_method);
+    traj1 = create_trajectory(data, 1, 0, 0, ...
+        [1 2 4], [-42.0000 -18.8000], true, 10, plotSurface, ...
+        plotNewTrajectories, fit_type, canal_method, plot_method);
     
 elseif set_to_run == 1
     %Dataset1
@@ -53,7 +54,7 @@ elseif set_to_run == 1
         point_num, plotRawTrajectories);
     traj1 = create_trajectory(smooth_data1, 100, 100, 1, ...
         1:length(smooth_data1), [19.6 -6.8], true, 10, plotSurface, ...
-        plotNewTrajectories, fit_type, canal_method);
+        plotNewTrajectories, fit_type, canal_method, plot_method);
     %     animate(1, smooth_data1, offset_vec1, [-127.5, 30], ...
     %         [-0.25 1 -0.5 0.6 -0.5 0.8], [0.5 0.25 0.25], record_bool, ...
     %         set1_title, q0);
@@ -69,7 +70,7 @@ elseif set_to_run == 2
         point_num, plotRawTrajectories);
     traj2 = create_trajectory(smooth_data2, 100, 100, 2, ...
         1:length(smooth_data2), [0 90], true, 10, plotSurface, ...
-        plotNewTrajectories, fit_type, canal_method);
+        plotNewTrajectories, fit_type, canal_method, plot_method);
     %     animate(2, smooth_data2, offset_vec2, [-127.5, 30], ...
     %         [-1 1 -1 1 -0.5 0.5], [-0.5 0.03 -0.15], record_bool, ...
     %         set2_title, q0);
@@ -85,7 +86,7 @@ elseif set_to_run == 3
         point_num, plotRawTrajectories);
     traj3 = create_trajectory(smooth_data3, 100, 100, 3, ...
         1:length(smooth_data3), [-48.8 3.6], true, 10, plotSurface, ...
-        plotNewTrajectories, fit_type, canal_method);
+        plotNewTrajectories, fit_type, canal_method, plot_method);
     %     animate(3, smooth_data3, offset_vec3, [-200 30], ...
     %         [-0.5 0.75 -0.9 0.5 -1 0.9], [0.6 -0.3 0.7], ...
     %         record_bool, set3_title, q0);

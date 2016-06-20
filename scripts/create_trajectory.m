@@ -1,6 +1,6 @@
 function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
     howmany, view_vec, randomflag, points, plotSurface, ...
-    plotTrajectories, fit_type, canal_method)
+    plotTrajectories, fit_type, canal_method, plot_method)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates new trajectories based
 % on a canal surface approach
@@ -26,6 +26,7 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 %             desired
 %   canal_method: 1 or 2 depending on which method is used to create the
 %                 canal
+%   plot_method: 'circles' or 'surface' based on desired plot
 %
 % Output:
 %   trajectories: cell with each element point_numx3 vector of generated
@@ -38,7 +39,7 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 %Calculate the boundary (see boundary_calculation function for contents of
 %values cell)
 values = boundary_calculation(data, set_num, view_vec, howmany, ...
-    idx1, idx2, plotSurface, fit_type, canal_method);
+    idx1, idx2, plotSurface, fit_type, canal_method, plot_method);
 
 %Get the initial mean point
 mean_vec = [values(1).xmean, values(1).ymean, values(1).zmean];
@@ -54,10 +55,11 @@ if randomflag
     %of the canal
     initPoints = zeros(points, 3);
     for ii = 1:points
-        if strcmp(fit_type, 'circle')
+        if strcmp(fit_type, 'circles')
             initPoints(ii, :) = mean_vec(1,:) + ...
-                (2^-.5)*values(1).Router(1)*(-1+2*rand(1))*values(1).N2(1,:) +  ...
-                (2^-.5)*values(1).Router(1)*(-1+2*rand(1))*values(1).B2(1,:);
+                (2^-.5)*values(1).Router(1)*(-1+2*rand(1))*...
+                values(1).N2(1,:) + (2^-.5)*values(1).Router(1)*...
+                (-1+2*rand(1))*values(1).B2(1,:);
         end
     end
     
@@ -69,7 +71,7 @@ end
 %Compute the trajectory based on the output from the canal and initial
 %points
 for ii = 1:length(initPoints)
-    if strcmp(fit_type, 'circle')
+    if strcmp(fit_type, 'circles')
         trajectories{ii} = compute_trajectory(values, data_size, ...
             initPoints(ii,:));
     end
