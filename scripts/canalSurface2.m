@@ -1,4 +1,4 @@
-function [canal1,canal2,T,N,B,N2,B2] = canalSurface(t,x,y,z,R,plotIt,filterIt)
+function [canal1,canal2,T,N,B,N2,B2] = canalSurface2(t,x,y,z,R,vect_a,vect_b,plotIt,filterIt)
 % -----------------------------------------------------------------------
 % A function to calculate a canal surface and its corresponding TNB
 %
@@ -169,9 +169,6 @@ if plotIt
     subplot(2,2,3);hold on
 end
 
-%plotting the circles
-% R = 0.2;
-% stepc = 1;
 tc = 0:0.01:1; % arc-length on the circle
 stepc = fix(0.01*length(x)); % 10% of the data is used
 L = length(1:stepc:xn);
@@ -187,7 +184,6 @@ for ii = 1:stepc:length(xn)
     end
 end
 if plotIt
-    %     subplot(2,2,3);hold on
     plot3(x,y,z,'linewidth',2);
     axis equal
     subplot(2,2,4);hold on
@@ -196,7 +192,8 @@ end
 allC2 = zeros(3,length(tc),L);
 k = 1;
 for ii = 1:stepc:length(xn)
-    C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + R(1,ii)*(N(:,ii)* cos(2*pi*tc) + B(:,ii) * sin(2*pi*tc)); %  * cos(2*pi*tc)
+    C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + ...
+        R(1,ii)*(vect_a(ii,:)'* cos(2*pi*tc) + vect_b(ii,:)' * sin(2*pi*tc));
     allC2(:,:,k) = C;
     k = k + 1;
     if plotIt
@@ -205,7 +202,6 @@ for ii = 1:stepc:length(xn)
 end
 
 if plotIt
-    %     subplot(2,2,4);hold on
     plot3(x,y,z,'linewidth',2);
     axis equal
 end

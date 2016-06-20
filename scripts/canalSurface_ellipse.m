@@ -1,43 +1,5 @@
-function [canal1,canal2,T,N,B,N2,B2] = canalSurface(t,x,y,z,R,plotIt,filterIt)
-% -----------------------------------------------------------------------
-% A function to calculate a canal surface and its corresponding TNB
-%
-% Inputs:
-%   t: time or interval
-%   x,y,z: directrix or backbone curve of the canal
-%   R: radii or radius function
-%   plotIt: true for plotting the canal and TNB false otherwise
-%   filterIt: true for filtering the TNB false otherwise
-%
-% Output:
-%   T,N,B: TNB vectors calculated using the first method
-%   T,N2,B2: TNB vectors calculated using the second method
-%   canal1: canal surface calculated using T,N,B
-%   canal2: canal surface calculated using T,N2,B2
-%
-% Example:
-%   t = 0:0.01:2*pi;
-%   a = 2;
-%   b = 1;
-%   x = a*cos(t);
-%   y = a*sin(t);
-%   z = b*t;
-%   R = 0.4 * cos(pi*t/3) + 0.2;
-%   plotIt = true;
-%   filterIt = false;
-%   [canal1,canal2,T,N,B,N2,B2] = canalSurface(t,x,y,z,R,plotIt,filterIt);
-%
-% using formulation we will have:
-%   r(t) = [x(t),y(t),z(t)]
-%   rd(t) = [xd(t),yd(t),zd(t)]
-% derivation using formulat
-%   xd = -a*sin(t);
-%   yd = a*cos(t);
-%   zd = b*ones(size(yd));
-% -----------------------------------------------------------------------
-% Code: Reza Ahmadzadeh 2016 (reza.ahmadzadeh@gatech.edu)
-% April-6-2016
-% -----------------------------------------------------------------------
+function [canal,T,N,B,N2,B2] = canalSurface_ellipse(t,x,y,z,R1,...
+    R2,alpha,vect_a,vect_b,plotIt,filterIt, canal_method)
 %% assessing data
 % ----- check to see if the vector needs to be transposed -----
 if size(t,1) > 1
@@ -45,7 +7,9 @@ if size(t,1) > 1
     x = x.';
     y = y.';
     z = z.';
-    R = R.';
+    R1 = R1.';
+    R2 = R2.';
+    alpha = alpha.';
 end
 
 % ----- fit a spline to each dimension of the data -----
@@ -156,61 +120,38 @@ end
 if plotIt
     stepc = 10;
     figure;
-    subplot(2,2,1);hold on
+    subplot(2,1,1);hold on
     quiver3(x(1:stepc:end),y(1:stepc:end),z(1:stepc:end),T(1,1:stepc:end),T(2,1:stepc:end),T(3,1:stepc:end));
     quiver3(x(1:stepc:end),y(1:stepc:end),z(1:stepc:end),N(1,1:stepc:end),N(2,1:stepc:end),N(3,1:stepc:end));
     quiver3(x(1:stepc:end),y(1:stepc:end),z(1:stepc:end),B(1,1:stepc:end),B(2,1:stepc:end),B(3,1:stepc:end));
     axis equal
-    subplot(2,2,2);hold on
+    subplot(2,1,2);hold on
     quiver3(x(1:stepc:end),y(1:stepc:end),z(1:stepc:end),T(1,1:stepc:end),T(2,1:stepc:end),T(3,1:stepc:end));
     quiver3(x(1:stepc:end),y(1:stepc:end),z(1:stepc:end),N2(1,1:stepc:end),N2(2,1:stepc:end),N2(3,1:stepc:end));
     quiver3(x(1:stepc:end),y(1:stepc:end),z(1:stepc:end),B2(1,1:stepc:end),B2(2,1:stepc:end),B2(3,1:stepc:end));
     axis equal
-    subplot(2,2,3);hold on
 end
 
-%plotting the circles
-% R = 0.2;
-% stepc = 1;
 tc = 0:0.01:1; % arc-length on the circle
 stepc = fix(0.01*length(x)); % 10% of the data is used
 L = length(1:stepc:xn);
-
+alpha  = (alpha/pi*180 + 125)*pi/180;
 allC1 = zeros(3,length(tc),L);
 k = 1;
 for ii = 1:stepc:length(xn)
-    C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + R(1,ii)*(N(:,ii) * cos(2*pi*tc) + B(:,ii) * sin(2*pi*tc));
+    a = R1(ii); b = R2(ii); alpha_val = alpha(ii);
+    
+    x = a*cos(2*pi*tc)*cos(alpha_val) - b*sin(2*pi*tc)*sin(alpha_val);
+    y = a*cos(2*pi*tc)*sin(alpha_val) + b*sin(2*pi*tc)*cos(alpha_val);
+    if canal_method == 1
+        C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + N2(:,ii)*x + B2(:,ii)*y;
+    else
+        C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + vect_a(ii,:)'*x + vect_b(ii,:)'*y;
+    end
     allC1(:,:,k) = C;
     k = k + 1;
-    if plotIt
-        plot3(C(1,:),C(2,:),C(3,:),'k');
-    end
-end
-if plotIt
-    %     subplot(2,2,3);hold on
-    plot3(x,y,z,'linewidth',2);
-    axis equal
-    subplot(2,2,4);hold on
 end
 
-allC2 = zeros(3,length(tc),L);
-k = 1;
-for ii = 1:stepc:length(xn)
-    C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + R(1,ii)*(N(:,ii)* cos(2*pi*tc) + B(:,ii) * sin(2*pi*tc)); %  * cos(2*pi*tc)
-    allC2(:,:,k) = C;
-    k = k + 1;
-    if plotIt
-        plot3(C(1,:),C(2,:),C(3,:),'k');
-    end
-end
-
-if plotIt
-    %     subplot(2,2,4);hold on
-    plot3(x,y,z,'linewidth',2);
-    axis equal
-end
-
-canal1 = allC1;
-canal2 = allC2;
-clear allC1 allC2 stepc k C
+canal = allC1;
+clear allC1 stepc k C
 end
