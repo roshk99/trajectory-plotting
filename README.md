@@ -1,20 +1,24 @@
 # trajectory-planning
-***This project takes raw position data of the end effector of the Kinova Jaco robot and analyzes it.***
+***This project takes raw trajectories and creates a canal surface around them. This will allow for trajectory reproduction given an initial point.***
 
-** See main.m to reproduce the plots and videos in results folder **
+** Run canal_visualization_gui to play with the canal surface options with a GUI or run main.m to see the intermediate steps**
 
-###Data Analysis Steps
-* Extracts raw position data, shifts, cuts, resizes, and smooths it
-* Fits a canal surface over the data (a 3D envelope) using either circles or ellipses as cross-section and using one of two methods for calculating the surface
-* For circles, creates a new trajectory based on initial points given within the first cross-section of the canal
-* Animates a trajectory using the Jaco robot (inverse kinematics found using optimization so are not perfectly accurate)
+###Canal Visualization Options
+* Dataset
+	* Choose one of 4 datasets. Dataset 0 has artificial data and the remainder have experimental data
+* Type of Canal
+	* Choose either circles or ellipses as cross-sections
+* Boundary Method (only applicable for circlular cross-sections)
+	* Choose either fit to plane (fit_boundaries.m) or orthonormal vector method (fit_boundaries2.m)
+* Cross-Section Method
+	* Choose to align the cross-sections with either the TNB frames or the cross-sections themselves
+* Trajectories
+	* Choose a subset of the available trajectories to use to create the canal surface
+* Plot Type
+	* Plot with either individual circles or the surface (surface takes more graphics and is much slower)
 
-###Plots generated 
-* 4 data sets available, Set 0 has artificial data, and the Sets 1-3 have experimental data
-* Raw and smoothed trajectories in 3D and components
-* The canal surface surrounding the trajectories along with the mean trajectory (using either circles or ellipses and either method 1 or method 2 for boundary calculation)
-* The generated trajectories on the canal surface plot
-* An animation of the Jaco robot executing the trajectory
+###Animation and Reproduction (in progress)
+* The animation and reproduction portions of this project are in progress. Check back later!
 
 ###Prerequisites
 * MATLAB
@@ -34,10 +38,7 @@
     * Dataset number, type of canal, boundary calculation method, plot type
 
 ###Images to Video (Use Bulk Rename Utility or similar)
-* Put all the image files from a given dataset in the same folder
-(need to rename so that the filenames do not overlap, but they stay in 
-numeric order)
+* Put all the image files from a given dataset in the same folder (need to rename so that the filenames do not overlap, but they stay in numeric order)
 * Rename the files so that the first one is 0000.png and so on
 * Open a terminal and navigate to the folder with all the image files
-* Run the following command: `ffmpeg -r 10 -i %04d.png out.avi` replacing __out__
-with your video file name
+* Run the following command: `ffmpeg -r 10 -i %04d.png out.avi` replacing __out__ with your video file name

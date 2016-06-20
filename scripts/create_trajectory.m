@@ -1,6 +1,7 @@
 function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
     howmany, view_vec, randomflag, points, plotSurface, ...
-    plotTrajectories, fit_type, canal_method, plot_method)
+    plotTrajectories, fit_type, boundary_method, cross_section_method, ...
+    plot_method, handles)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates new trajectories based
 % on a canal surface approach
@@ -24,9 +25,13 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 %   plotTrajectories: boolean for plotting the generated trajectories
 %   fit_type: 'circle', 'ellipse', or 'bspline' based on type of surface
 %             desired
-%   canal_method: 1 or 2 depending on which method is used to create the
-%                 canal
+%   boundary_method: 1 or 2 depending on which method is used to calculate
+%                    the boundary (only for circles)
+%   cross_section_method: 1 or 2 depending on whether TNB frames are used
+%                         to calculate cross-section alignment or the 
+%                         cross-section itself
 %   plot_method: 'circles' or 'surface' based on desired plot
+%   handles: the gui object if using the canal visualization gui
 %
 % Output:
 %   trajectories: cell with each element point_numx3 vector of generated
@@ -39,7 +44,8 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 %Calculate the boundary (see boundary_calculation function for contents of
 %values cell)
 values = boundary_calculation(data, set_num, view_vec, howmany, ...
-    idx1, idx2, plotSurface, fit_type, canal_method, plot_method);
+    idx1, idx2, plotSurface, fit_type, boundary_method, ...
+    cross_section_method, plot_method, handles);
 
 %Get the initial mean point
 mean_vec = [values(1).xmean, values(1).ymean, values(1).zmean];

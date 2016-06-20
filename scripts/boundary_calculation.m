@@ -1,6 +1,6 @@
 function values = boundary_calculation(data, set_num, ...
-    canalview, howmany, idx1, idx2, plotSurface, fit_type, canal_method, ...
-    plot_method)
+    canalview, howmany, idx1, idx2, plotSurface, fit_type, ...
+    boundary_method, cross_section_method, plot_method, handles)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates a canal surface
 %
@@ -17,9 +17,13 @@ function values = boundary_calculation(data, set_num, ...
 %   plotSurface: boolean for plotting the canal surface
 %   fit_type: 'circle', 'ellipse', or 'bspline' based on type of surface
 %             desired
-%   canal_method: 1 or 2 depending on which method to create the canal is
-%                 used
+%   boundary_method: 1 or 2 depending on which method is used to calculate
+%                    the boundary (only for circles)
+%   cross_section_method: 1 or 2 depending on whether TNB frames are used
+%                         to calculate cross-section alignment or the
+%                         cross-section itself
 %   plot_method: 'circles' or 'surface' based on desired plot
+%   handles: the gui object if using the canal visualization gui
 %
 % Output:
 %   values: cell with various canal surface parameters
@@ -58,9 +62,9 @@ B = calculate_mean(allXs, allYs, allZs);
 
 %Finds the boundary values (radii and orientation vectors)
 if strcmp(fit_type, 'circles')
-    if canal_method == 1
-        [Router, xyz_distance] = find_boundaries([B(2).xmean, ...
-            B(2).ymean, B(2).zmean], allXs, allYs, allZs);
+    if boundary_method == '1'
+        [Router, xyz_distance, vect_a, vect_b] = find_boundaries(...
+            [B(2).xmean, B(2).ymean, B(2).zmean], allXs, allYs, allZs);
     else
         [Router, xyz_distance, vect_a, vect_b] = find_boundaries2(...
             [B(2).xmean,B(2).ymean, B(2).zmean], allXs, allYs, allZs);
@@ -81,24 +85,17 @@ tt = t(idx1:end-idx2);
 xx2 = B(2).xmean(idx1:end-idx2);
 yy2 = B(2).ymean(idx1:end-idx2);
 zz2 = B(2).zmean(idx1:end-idx2);
-
+vect_a = vect_a(idx1:end-idx2, :);
+vect_b = vect_b(idx1:end-idx2, :);
 values = struct([]);
 
 %Get the canal surface depending on the fit type
 if strcmp(fit_type, 'circles')
     RRouter = Router(idx1:end-idx2);
-    
-    if canal_method == 1
-        [~,canal,T,~,~,N2,B2] = ...
-            canalSurface(tt,xx2,yy2,zz2,RRouter,plotSurface_internal,...
-            filterSurface_internal);
-    else
-        vect_a = vect_a(idx1:end-idx2, :);
-        vect_b = vect_b(idx1:end-idx2, :);
-        [~,canal,T,~,~,N2,B2] = ...
-            canalSurface2(tt,xx2,yy2,zz2,RRouter,vect_a, vect_b, ...
-            plotSurface_internal,filterSurface_internal);
-    end
+    [~,canal,T,~,~,N2,B2] = ...
+        canalSurface2(tt,xx2,yy2,zz2,RRouter,vect_a, vect_b, ...
+        plotSurface_internal,filterSurface_internal, ...
+        cross_section_method);
     
     values(1).Router = Router(idx1:end-idx2);
     values(1).xyz_distance = xyz_distance;
@@ -110,13 +107,20 @@ elseif strcmp(fit_type, 'ellipses')
     Rvect_b = vect_b(idx1:end-idx2,:);
     [canal,T,~,~,N2,B2] = ...
         canalSurface_ellipse(tt,xx2,yy2,zz2,RR1,RR2,Ralpha,Rvect_a,...
-        Rvect_b,plotSurface_internal,filterSurface_internal, canal_method);
+        Rvect_b,plotSurface_internal,filterSurface_internal, ...
+        cross_section_method);
 end
 
 %Plot the canal surface
 if plotSurface
-    plot_surface(xx2, yy2, zz2, data, canal, canalview, set_num, ...
-        numDemos, fit_type, canal_method, plot_method)
+    if ~isa(handles, 'struct') %plots in a normal figure
+        plot_surface(xx2, yy2, zz2, data, canal, canalview, set_num, ...
+            numDemos, fit_type, boundary_method, cross_section_method, ...
+            plot_method);
+    else %plots in the GUI
+        plot_surface2(xx2, yy2, zz2, data, canal, canalview, numDemos, ...
+            plot_method, handles)
+    end
 end
 
 %Populate remainig values into output cell
@@ -204,7 +208,8 @@ hold off;
 end
 
 function plot_surface(xx2, yy2, zz2, data, canal, canalview, ...
-    set_num, numDemos, fit_type, canal_method, plot_method)
+    set_num, numDemos, fit_type, boundary_method, ...
+    cross_section_method, plot_method)
 %Plots the canal surface
 
 figure;hold on;
@@ -227,11 +232,43 @@ for ii=1:numDemos
     plot3(data{ii}(:,1), data{ii}(:,2), data{ii}(:,3),'r',...
         'linewidth',2);
 end
-title(sprintf('Set %i - Canal Surface using %s - Method %i', set_num, ...
-    fit_type, canal_method));
+title(sprintf('Set %i - Canal Surface using %s - Boundary Method %i - Cross section Method %i', ...
+    set_num, fit_type, boundary_method, cross_section_method));
 xlabel('X'); ylabel('Y'); zlabel('Z');
 axis square
 view(canalview);
 set(gcf, 'Position', get(0, 'Screensize'));
+hold off;
+end
+
+function plot_surface2(xx2, yy2, zz2, data, canal, canalview, numDemos, ...
+    plot_method, handles)
+%Plots the canal surface for GUI
+
+axes(handles.axes1);
+cla reset;
+hold on;
+if strcmp('circles', plot_method)
+    for kk = 1:size(canal,3)
+        C = canal(:,:,kk);
+        plot3(C(1,:),C(2,:),C(3,:),'k');
+    end
+else
+    surf(squeeze(canal(1,1:2:end,1:2:end)), squeeze(canal(2,1:2:end,1:2:end)), ...
+        squeeze(canal(3,1:2:end,1:2:end)));
+    shading interp;
+    alpha 0.5;
+    colormap bone;
+end
+
+plot3(xx2,yy2,zz2,'b','linewidth',2);
+
+for ii=1:numDemos
+    plot3(data{ii}(:,1), data{ii}(:,2), data{ii}(:,3),'r',...
+        'linewidth',2);
+end
+xlabel('X'); ylabel('Y'); zlabel('Z');
+axis square
+view(canalview);
 hold off;
 end
