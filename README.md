@@ -1,7 +1,7 @@
 # trajectory-planning
 ***This project takes raw trajectories and creates a canal surface around them. This will allow for trajectory reproduction given an initial point.***
 
-** Run canal_visualization_gui to play with the canal surface options with a GUI or run main.m to see the intermediate steps**
+*Run `canal_visualization_gui` to play with the canal surface options with a GUI or run `main.m` to see the intermediate steps*
 
 ###Canal Visualization Options
 * Dataset
@@ -9,7 +9,7 @@
 * Type of Canal
 	* Choose either circles or ellipses as cross-sections
 * Boundary Method (only applicable for circlular cross-sections)
-	* Choose either fit to plane (fit_boundaries.m) or orthonormal vector method (fit_boundaries2.m)
+	* Choose either fit to plane (`fit_boundaries.m`) or orthonormal vector method (`fit_boundaries2.m`)
 * Cross-Section Method
 	* Choose to align the cross-sections with either the TNB frames or the cross-sections themselves
 * Trajectories
