@@ -102,6 +102,9 @@ function plot_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Update handles structure
+guidata(hObject, handles);
+
 %Get Dataset Number
 set_to_run = get(handles.dataset_dropdown,'Value') - 1;
 
