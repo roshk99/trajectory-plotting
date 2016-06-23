@@ -1,5 +1,5 @@
-function [canal1,canal2,T,N,B,N2,B2] = canalSurface2(t,x,y,z,R,...
-    vect_a,vect_b,plotIt,filterIt, cross_section_method)
+function [canal1,canal2,T,N,B,N2,B2] = canalSurface2(t,x,y,z,R,plotIt,...
+    filterIt)
 % -----------------------------------------------------------------------
 % A function to calculate a canal surface and its corresponding TNB
 %
@@ -192,28 +192,13 @@ end
 
 allC2 = zeros(3,length(tc),L);
 k = 1;
-%Align cross-sections to the orthonormal vectors
-if cross_section_method == 2
-    for ii = 1:stepc:length(xn)
-        C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc)) + ...
-            R(1,ii)*(vect_a(ii,:)'*cos(2*pi*tc)...
-            +vect_b(ii,:)'*sin(2*pi*tc));
-        allC2(:,:,k) = C;
-        k = k + 1;
-        if plotIt
-            plot3(C(1,:),C(2,:),C(3,:),'k');
-        end
-    end
-%Align cross-sections to the TNB frame
-else
-    for ii = 1:stepc:length(xn)
-        C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc))...
-            +R(1,ii)*(N2(:,ii)* cos(2*pi*tc) + B2(:,ii) * sin(2*pi*tc));
-        allC2(:,:,k) = C;
-        k = k + 1;
-        if plotIt
-            plot3(C(1,:),C(2,:),C(3,:),'k');
-        end
+for ii = 1:stepc:length(xn)
+    C = repmat([xn(ii);yn(ii);zn(ii)],1,length(tc))...
+        +R(1,ii)*(N2(:,ii)* cos(2*pi*tc) + B2(:,ii) * sin(2*pi*tc));
+    allC2(:,:,k) = C;
+    k = k + 1;
+    if plotIt
+        plot3(C(1,:),C(2,:),C(3,:),'k');
     end
 end
 

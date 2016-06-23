@@ -1,6 +1,6 @@
 function values = boundary_calculation(data, set_num, ...
-    canalview, howmany, idx1, idx2, plotSurface, fit_type, ...
-    boundary_method, cross_section_method, plot_method, handles)
+    canalview, howmany, idx1, idx2, plotSurface, fit_type, plot_method, ...
+    handles)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates a canal surface
 %
@@ -17,11 +17,6 @@ function values = boundary_calculation(data, set_num, ...
 %   plotSurface: boolean for plotting the canal surface
 %   fit_type: 'circle', 'ellipse', or 'bspline' based on type of surface
 %             desired
-%   boundary_method: 1 or 2 depending on which method is used to calculate
-%                    the boundary (only for circles)
-%   cross_section_method: 1 or 2 depending on whether TNB frames are used
-%                         to calculate cross-section alignment or the
-%                         cross-section itself
 %   plot_method: 'circles' or 'surface' based on desired plot
 %   handles: the gui object if using the canal visualization gui
 %
@@ -30,8 +25,8 @@ function values = boundary_calculation(data, set_num, ...
 %           values(1).xmean = mean in x direction (point_num x 1)
 %           values(1).ymean = mean in y direction (point_num x 1)
 %           values(1).zmean = mean in z direction (point_num x 1)
-%           values(1).N2 = normal component of TNB frame (3 x point_num)
-%           values(1).B2 = binormal component of TNB frame (3 x point_num)
+%           values(1).N = normal component of TNB frame (3 x point_num)
+%           values(1).B = binormal component of TNB frame (3 x point_num)
 %           values(1).T = tangent component of TNB frame (3 x point_num)
 %
 % -----------------------------------------------------------------------
@@ -40,8 +35,6 @@ function values = boundary_calculation(data, set_num, ...
 
 %Initialize flags for internal plotting and filtering
 plotBoundaries = false;
-plotSurface_internal = false;
-filterSurface_internal = false;
 
 %Initialize data sizes
 numDemos = numel(howmany);
@@ -56,86 +49,69 @@ for ii = 1:numDemos
     allYs(:,ii) = data{ii}(:,2);
     allZs(:,ii) = data{ii}(:,3);
 end
+t = linspace(0,1,nPoints).';
 
 %Calculates the mean trajectory
-B = calculate_mean(allXs, allYs, allZs);
+xyz_mean = [mean(allXs, 2), mean(allYs, 2), mean(allZs, 2)];
+
+%Calculate the TNB Frames
+[T, N, B] = calculateTNB(t, xyz_mean);
 
 %Finds the boundary values (radii and orientation vectors)
 if strcmp(fit_type, 'circles')
-    if boundary_method == '1'
-        [Router, xyz_distance, vect_a, vect_b] = find_boundaries(...
-            [B(2).xmean, B(2).ymean, B(2).zmean], allXs, allYs, allZs);
-    else
-        [Router, xyz_distance, vect_a, vect_b] = find_boundaries2(...
-            [B(2).xmean,B(2).ymean, B(2).zmean], allXs, allYs, allZs);
-    end
+    [Router, xyz_distance] = find_boundaries(xyz_mean, allXs, allYs, ...
+        allZs);
     
     if plotBoundaries
-        plot_boundaries(data, B, xyz_distance, numDemos, threshold);
+        %plot_boundaries(data, B, xyz_distance, numDemos, threshold);
     end
 elseif strcmp(fit_type, 'ellipses')
-    [R1, R2, alpha, vect_a, vect_b] = find_boundaries_ellipse(...
-        [B(2).xmean, B(2).ymean, B(2).zmean], allXs, allYs, allZs);
+    [R1, R2, alpha] = find_boundaries_ellipse(xyz_mean, ...
+        allXs, allYs, allZs, T, N);
 end
 
 
 %Get only subset of values within specified boundary
-t = linspace(0,1,nPoints).';
 tt = t(idx1:end-idx2);
-xx2 = B(2).xmean(idx1:end-idx2);
-yy2 = B(2).ymean(idx1:end-idx2);
-zz2 = B(2).zmean(idx1:end-idx2);
-vect_a = vect_a(idx1:end-idx2, :);
-vect_b = vect_b(idx1:end-idx2, :);
+xx2 = xyz_mean(idx1:end-idx2, 1);
+yy2 = xyz_mean(idx1:end-idx2, 2);
+zz2 = xyz_mean(idx1:end-idx2, 3);
+N = N(:, idx1:end-idx2);
+B = B(:, idx1:end-idx2);
 values = struct([]);
 
 %Get the canal surface depending on the fit type
 if strcmp(fit_type, 'circles')
     RRouter = Router(idx1:end-idx2);
-    [~,canal,T,~,~,N2,B2] = ...
-        canalSurface2(tt,xx2,yy2,zz2,RRouter,vect_a, vect_b, ...
-        plotSurface_internal,filterSurface_internal, ...
-        cross_section_method);
+    [canal] = canalSurface(xx2,yy2,zz2,N, B, RRouter);
     
     values(1).Router = Router(idx1:end-idx2);
     values(1).xyz_distance = xyz_distance;
-elseif strcmp(fit_type, 'ellipses')
+elseif strcmp(fit_type, 'ellipses')    
     RR1 = R1(idx1:end-idx2);
     RR2 = R2(idx1:end-idx2);
     alpha = alpha(idx1:end-idx2);
-    [canal,T,~,~,N2,B2] = ...
-        canalSurface_ellipse(tt,xx2,yy2,zz2,RR1,RR2,alpha, vect_a,...
-        vect_b,plotSurface_internal,filterSurface_internal, ...
-        cross_section_method);
+    canal = canalSurface_ellipse(xx2, yy2, zz2, N, B, RR1, RR2, alpha);
 end
 
 %Plot the canal surface
 if plotSurface
     if ~isa(handles, 'struct') %plots in a normal figure
         plot_surface(xx2, yy2, zz2, data, canal, canalview, set_num, ...
-            numDemos, fit_type, boundary_method, cross_section_method, ...
-            plot_method);
+            numDemos, fit_type, plot_method);
     else %plots in the GUI
         plot_surface2(xx2, yy2, zz2, data, canal, canalview, numDemos, ...
             plot_method, handles)
     end
 end
 
-%Populate remainig values into output cell
+%Populate remaining values into output cell
 values(1).xmean = xx2;
 values(1).ymean = yy2;
 values(1).zmean = zz2;
-values(1).N2 = N2';
-values(1).B2 = B2';
+values(1).N = N';
+values(1).B = B';
 values(1).T = T';
-end
-
-function B = calculate_mean(allXs, allYs, allZs)
-%Returns the mean trajectory
-B = struct([]);
-B(2).xmean = mean(allXs,2);
-B(2).ymean = mean(allYs,2);
-B(2).zmean = mean(allZs,2);
 end
 
 function plot_boundaries(data, B, xyz_distance, numDemos, threshold)
@@ -206,16 +182,15 @@ hold off;
 end
 
 function plot_surface(xx2, yy2, zz2, data, canal, canalview, ...
-    set_num, numDemos, fit_type, boundary_method, ...
-    cross_section_method, plot_method)
+    set_num, numDemos, fit_type, plot_method)
 %Plots the canal surface
 
-figure;hold on;
+figure; hold on;
 if strcmp('circles', plot_method)
     for kk = 1:size(canal,3)
         C = canal(:,:,kk);
         plot3(C(1,:),C(2,:),C(3,:),'k');
-    end
+    end   
 else
     surf(squeeze(canal(1,:,:)), squeeze(canal(2,:,:)), ...
         squeeze(canal(3,:,:)));
@@ -230,10 +205,10 @@ for ii=1:numDemos
     plot3(data{ii}(:,1), data{ii}(:,2), data{ii}(:,3),'r',...
         'linewidth',2);
 end
-title(sprintf('Set %i - Canal Surface using %s - Boundary Method %i - Cross section Method %i', ...
-    set_num, fit_type, boundary_method, cross_section_method));
+title(sprintf('Set %i - Canal Surface using %s', ...
+    set_num, fit_type));
 xlabel('X'); ylabel('Y'); zlabel('Z');
-axis square
+axis equal;
 view(canalview);
 set(gcf, 'Position', get(0, 'Screensize'));
 hold off;
@@ -266,7 +241,7 @@ for ii=1:numDemos
         'linewidth',2);
 end
 xlabel('X'); ylabel('Y'); zlabel('Z');
-axis square
+axis equal;
 view(canalview);
 hold off;
 end

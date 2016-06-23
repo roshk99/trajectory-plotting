@@ -1,7 +1,6 @@
 function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
     howmany, view_vec, randomflag, points, plotSurface, ...
-    plotTrajectories, fit_type, boundary_method, cross_section_method, ...
-    plot_method, handles)
+    plotTrajectories, fit_type, plot_method, handles)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates new trajectories based
 % on a canal surface approach
@@ -25,11 +24,6 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 %   plotTrajectories: boolean for plotting the generated trajectories
 %   fit_type: 'circle', 'ellipse', or 'bspline' based on type of surface
 %             desired
-%   boundary_method: 1 or 2 depending on which method is used to calculate
-%                    the boundary (only for circles)
-%   cross_section_method: 1 or 2 depending on whether TNB frames are used
-%                         to calculate cross-section alignment or the 
-%                         cross-section itself
 %   plot_method: 'circles' or 'surface' based on desired plot
 %   handles: the gui object if using the canal visualization gui
 %
@@ -44,14 +38,13 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 %Calculate the boundary (see boundary_calculation function for contents of
 %values cell)
 values = boundary_calculation(data, set_num, view_vec, howmany, ...
-    idx1, idx2, plotSurface, fit_type, boundary_method, ...
-    cross_section_method, plot_method, handles);
+    idx1, idx2, plotSurface, fit_type, plot_method, handles);
 
 %Get the initial mean point
 mean_vec = [values(1).xmean, values(1).ymean, values(1).zmean];
 
 %The number of trajectories
-data_size = size(values(1).N2, 1);
+data_size = size(values(1).N, 1);
 
 trajectories = {};
 %if randomly generated initial points are desired
@@ -64,8 +57,8 @@ if randomflag
         if strcmp(fit_type, 'circles')
             initPoints(ii, :) = mean_vec(1,:) + ...
                 (2^-.5)*values(1).Router(1)*(-1+2*rand(1))*...
-                values(1).N2(1,:) + (2^-.5)*values(1).Router(1)*...
-                (-1+2*rand(1))*values(1).B2(1,:);
+                values(1).N(1,:) + (2^-.5)*values(1).Router(1)*...
+                (-1+2*rand(1))*values(1).B(1,:);
         end
     end
     
@@ -110,8 +103,8 @@ for ii=2:data_size
     
     %Get reference frame from previous point and current point
     v1 = values(1).T(ii-1,:); v1_2 = values(1).T(ii,:);
-    v2 = values(1).B2(ii-1,:); v2_2 = values(1).B2(ii,:);
-    v3 = values(1).N2(ii-1,:); v3_2 = values(1).N2(ii,:);
+    v2 = values(1).B(ii-1,:); v2_2 = values(1).B(ii,:);
+    v3 = values(1).N(ii-1,:); v3_2 = values(1).N(ii,:);
     
     %Get unit vector from the previous mean and previous point in
     %trajectory (for direction)

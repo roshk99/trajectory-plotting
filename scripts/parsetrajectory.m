@@ -92,8 +92,6 @@ end
 
 function fit_data = get_fit_trajectories(data, point_num)
 
-new_t_vec = (0:point_num-1)';
-
 %Fit data and get new warped data
 for ind1 = 1:length(data)
     traj_vec = data{ind1};

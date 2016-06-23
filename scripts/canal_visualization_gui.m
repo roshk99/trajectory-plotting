@@ -115,20 +115,6 @@ elseif get(handles.ellipses_radio, 'Value')
     canal_method = 'ellipses';
 end
 
-%Get Cross Section Method
-if get(handles.cross_section_method1_radio, 'Value')
-    cross_section_method = 1;
-else
-    cross_section_method = 2;
-end
-
-%Get Boundary Method
-if get(handles.boundary_method1_radio, 'Value')
-    boundary_method = 1;
-else
-    boundary_method = 2;
-end
-
 %Get Trajectories
 how_many = [];
 if get(handles.trajectory1, 'Value')
@@ -157,8 +143,8 @@ else
     plot_method = 'surface';
 end
 
-canal_visualization(set_to_run, canal_method, how_many, ...
-    boundary_method, cross_section_method, plot_method, handles);
+canal_visualization(set_to_run, canal_method, how_many, plot_method, ...
+    handles);
 
 % --- Executes on button press in trajectory1.
 function trajectory1_Callback(hObject, eventdata, handles)
