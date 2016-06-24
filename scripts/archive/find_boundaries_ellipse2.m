@@ -1,5 +1,5 @@
 function [R1, R2, alpha_vec] = find_boundaries_ellipse(reference, ...
-    curvesX, curvesY, curvesZ, T, N, B)
+    curvesX, curvesY, curvesZ, T, N)
 % -----------------------------------------------------------------------
 % A function that finds the two radii and angle of orientation for ellipses
 % as cross sections
@@ -46,11 +46,22 @@ for ii = 1:point_num %For each point
         distances(jj) = norm(point1-point2);
     end
     
-    for k=1:size(max_point,1)
-        new_points(k,:) = [dot(N(:,ii), max_point(k,:)-point1), dot(B(:,ii), max_point(k,:)-point1)];
-    end
-    new_center = [0,0];
-    [a,b,vect_a,vect_b,alpha] = estimateEllipse(new_points', new_center');
+    [sorted_distances, indx] = sort(distances, 'ascend');
+    
+    %Get the point with the max distance
+    a = sorted_distances(end);
+    b = sorted_distances(end-1);
+    
+    maj_dist_point = max_point(indx(end), :);
+    
+    %Get the major axis vector
+    vect_a = maj_dist_point - point1;
+    vect_a = vect_a/norm(vect_a);
+    vect_b = cross(vect_a, T(:,ii));
+    vect_b = vect_b/norm(vect_b);
+    
+    %Angle between the major axis and N-axis
+    alpha = acos(dot(vect_a, N(:,ii)));
     
     R1(ii) = a;
     R2(ii) = b;

@@ -67,7 +67,7 @@ if strcmp(fit_type, 'circles')
     end
 elseif strcmp(fit_type, 'ellipses')
     [R1, R2, alpha] = find_boundaries_ellipse(xyz_mean, ...
-        allXs, allYs, allZs, T, N);
+        allXs, allYs, allZs, T, N, B);
 end
 
 
