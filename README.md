@@ -8,10 +8,6 @@
 	* Choose one of 4 datasets. Dataset 0 has artificial data and the remainder have experimental data
 * Type of Canal
 	* Choose either circles or ellipses as cross-sections
-* Boundary Method (only applicable for circlular cross-sections)
-	* Choose either fit to plane (`fit_boundaries.m`) or orthonormal vector method (`fit_boundaries2.m`)
-* Cross-Section Method
-	* Choose to align the cross-sections with either the TNB frames or the cross-sections themselves
 * Trajectories
 	* Choose a subset of the available trajectories to use to create the canal surface
 * Plot Type
