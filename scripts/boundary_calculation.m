@@ -208,8 +208,8 @@ end
 title(sprintf('Set %i - Canal Surface using %s', ...
     set_num, fit_type));
 xlabel('X'); ylabel('Y'); zlabel('Z');
-axis equal;
 view(canalview);
+axis equal;
 set(gcf, 'Position', get(0, 'Screensize'));
 hold off;
 end
@@ -241,7 +241,7 @@ for ii=1:numDemos
         'linewidth',2);
 end
 xlabel('X'); ylabel('Y'); zlabel('Z');
-axis equal;
 view(canalview);
+axis equal;
 hold off;
 end

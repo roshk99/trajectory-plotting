@@ -69,7 +69,7 @@ end
 
 %Compute the trajectory based on the output from the canal and initial
 %points
-for ii = 1:length(initPoints)
+for ii = 1:length(initPoints(:,1))
     if strcmp(fit_type, 'circles')
         trajectories{ii} = compute_trajectory(values, data_size, ...
             initPoints(ii,:));

@@ -19,6 +19,8 @@ function [Router, xyz_distance_vec] = ...
 % Code: Roshni Kaushik 2016 (roshni.s.kaushik@gmail.com)
 % -----------------------------------------------------------------------
 
+neighborhood = 300;
+
 %Get dimensions
 point_num = size(reference, 1);
 trajectory_num = size(curvesX, 2);
@@ -31,6 +33,16 @@ Router = zeros(point_num, 1);
 xyz_distance_vec = zeros(point_num, 3);
 for ii = 1:point_num %For each point
     
+    %Normalize gradient
+    mag = norm([dx(ii) dy(ii) dz(ii)]);
+    dx(ii) = dx(ii)/mag; dy(ii) = dy(ii)/mag; dz(ii) = dz(ii)/mag;
+    
+    %Get indices around point
+    idx1 = ii-neighborhood;
+    idx1 = max(idx1, 1);
+    idx2 = ii+neighborhood;
+    idx2 = min(idx2, point_num);
+    
     %Current Point
     point1 = reference(ii,:);
     
@@ -38,17 +50,18 @@ for ii = 1:point_num %For each point
     xyz_distance = zeros(trajectory_num, 3);
     max_point = zeros(trajectory_num, 3);
     for jj = 1:trajectory_num %For each trajectory
-        
+
         %Closest point to plane
-        min_func = dx(ii)*(curvesX(:,jj) - point1(1)) + ...
-            dy(ii)*(curvesY(:,jj) - point1(2)) + ...
-            dz(ii)*(curvesZ(:,jj) - point1(3));
+        min_func = dx(ii)*(curvesX(idx1:idx2,jj) - point1(1)) + ...
+            dy(ii)*(curvesY(idx1:idx2,jj) - point1(2)) + ...
+            dz(ii)*(curvesZ(idx1:idx2,jj) - point1(3));
         [~, ind2] = min(abs(min_func));
-        point2 = [curvesX(ind2, jj), curvesY(ind2, jj), curvesZ(ind2, jj)];
+        point2 = [curvesX(idx1-1+ind2, jj), curvesY(idx1-1+ind2, jj), ...
+            curvesZ(idx1-1+ind2, jj)];        
         
         %Store temporary values
         max_point(jj, :) = point2;
-        distances(jj) = sqrt(sum((point1 - point2).^2));
+        distances(jj) = norm(point1 - point2);
         xyz_distance(jj, :) = abs(point1 - point2);
     end
     

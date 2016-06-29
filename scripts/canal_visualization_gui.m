@@ -108,11 +108,11 @@ guidata(hObject, handles);
 %Get Dataset Number
 set_to_run = get(handles.dataset_dropdown,'Value') - 1;
 
-%Get Canal Method
+%Get Fit Type
 if get(handles.circles_radio, 'Value')
-    canal_method = 'circles';
+    fit_type = 'circles';
 elseif get(handles.ellipses_radio, 'Value')
-    canal_method = 'ellipses';
+    fit_type = 'ellipses';
 end
 
 %Get Trajectories
@@ -126,14 +126,25 @@ end
 if get(handles.trajectory3, 'Value')
     how_many = [how_many 3];
 end
-if get(handles.trajectory4, 'Value')
+if get(handles.trajectory4, 'Value') && set_to_run < 4
     how_many = [how_many 4];
 end
 if get(handles.trajectory5, 'Value') && set_to_run == 3
     how_many = [how_many 5];
 end
 if isempty(how_many)
-    how_many = 1:4;
+    switch set_to_run
+        case 0
+            how_many = 1:4;
+        case 1
+            how_many = 1:4;
+        case 2
+            how_many = 1:4;
+        case 3
+            how_many = 1:5;
+        case 4
+            how_many = 1:3;
+    end
 end
 
 %Get Plot Method
@@ -143,7 +154,7 @@ else
     plot_method = 'surface';
 end
 
-canal_visualization(set_to_run, canal_method, how_many, plot_method, ...
+run_func(set_to_run, fit_type, plot_method, how_many, ...
     handles);
 
 % --- Executes on button press in trajectory1.

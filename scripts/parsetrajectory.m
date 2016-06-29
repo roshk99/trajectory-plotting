@@ -49,6 +49,9 @@ elseif set_num == 2
 elseif set_num == 3
     load dataset3;
     raw_vars = {dataset3_1, dataset3_4, dataset3_5, dataset3_6, dataset3_7};
+elseif set_num == 4
+    load dataset4;
+    raw_vars = {dataset4_4, dataset4_5, dataset4_6};
 else
     fprintf('Error Occurred - Dataset %i not available', set_num);
     return;
@@ -70,17 +73,23 @@ for ind1 = 1:length(data)
     traj = data{ind1};
     
     %Eliminate nonvarying poritions in beginning and end
-    for ind2 = 1:3
-        traj = traj(abs(traj(:,ind2) - ...
-            traj(1,ind2)*ones(length(traj(:,ind2)), 1)) > ...
-            tol*ones(length(traj(:,ind2)), 1), :);
-        traj = traj(abs(traj(:,ind2) - ...
-            traj(end,ind2)*ones(length(traj(:,ind2)), 1)) > ...
-            tol*ones(length(traj(:,ind2)), 1), :);
-    end
-    
+%     for ind2 = 1:3
+%         traj = traj(abs(traj(:,ind2) - ...
+%             traj(1,ind2)*ones(length(traj(:,ind2)), 1)) > ...
+%             tol*ones(length(traj(:,ind2)), 1), :);
+%         traj = traj(abs(traj(:,ind2) - ...
+%             traj(end,ind2)*ones(length(traj(:,ind2)), 1)) > ...
+%             tol*ones(length(traj(:,ind2)), 1), :);
+%     end
+
+    traj = traj(sum(abs(traj - repmat(traj(1,:), length(traj), 1)) ...
+        > repmat(tol, length(traj), 3), 2) > 0, :);
+    traj = traj(sum(abs(traj - repmat(traj(end,:), length(traj), 1)) ...
+        > repmat(tol, length(traj), 3), 2) > 0, :);
+
+
     %Shift data
-    if length(end_point) == 3
+    if end_point ~= [Inf, Inf, Inf]
         cut_data{ind1} = [traj(:,1) - traj(end, 1) + end_point(1),...
             traj(:,2) - traj(end, 2) + end_point(2),...
             traj(:,3) - traj(end, 3) + end_point(3)];
