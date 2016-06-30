@@ -1,5 +1,5 @@
-function smooth_data = parsetrajectory(set_num, end_point, tol, ...
-    span, point_num, plot_bool)
+function [cut_data, smooth_data] = parseTrajectory(set_num, end_point, tol, ...
+    span, point_num)
 % -----------------------------------------------------------------------
 % A function to analyze raw data and output smooth data
 %
@@ -13,6 +13,7 @@ function smooth_data = parsetrajectory(set_num, end_point, tol, ...
 %              trajectories will be resampled to achieve this
 %
 % Output:
+%   cut_data: same as smooth_data without fitting and smoothing
 %   smooth_data: cell with each element point_numx3 vector of smoothed data
 %
 % -----------------------------------------------------------------------
@@ -30,12 +31,6 @@ fit_data = get_fit_trajectories(cut_data, point_num);
 
 %Smooth data
 smooth_data = get_smooth_trajectories(fit_data, span);
-
-%Plots
-if plot_bool
-    plot_data(fit_data, sprintf('Raw Data for Set %i', set_num));
-    plot_data(smooth_data, sprintf('Smoothed Data for Set %i', set_num));
-end
 end
 
 function data_vars = get_raw_trajectories(set_num)
@@ -51,7 +46,7 @@ elseif set_num == 3
     raw_vars = {dataset3_1, dataset3_4, dataset3_5, dataset3_6, dataset3_7};
 elseif set_num == 4
     load dataset4;
-    raw_vars = {dataset4_4, dataset4_5, dataset4_6};
+    raw_vars = {dataset4_3, dataset4_4, dataset4_5, dataset4_6, dataset4_7};
 else
     fprintf('Error Occurred - Dataset %i not available', set_num);
     return;
@@ -132,52 +127,3 @@ for ind1 = 1:length(data)
 end
 end
 
-function plot_data(data, plot_title)
-figure;
-cc = jet(length(data));
-if isempty(plot_title)
-    subplot(3,1,1); hold all; title('X Component');
-else
-    subplot(3,1,1); hold all;
-    title(sprintf('%s - X Component', plot_title));
-end
-subplot(3,1,2); hold all; title('Y Component');
-subplot(3,1,3); hold all; title('Z Component');
-
-legend_vec = {};
-for ind1 = 1:length(data)
-    tvec = -(length(data{ind1}(:,1))-1):0;
-    subplot(3,1,1);
-    plot(tvec, data{ind1}(:,1), 'color', cc(ind1,:), ...
-        'linewidth', 1.2);
-    subplot(3,1,2);
-    plot(tvec, data{ind1}(:,2), 'color', cc(ind1,:), ...
-        'linewidth', 1.2);
-    subplot(3,1,3);
-    plot(tvec, data{ind1}(:,3), 'color', cc(ind1,:), ...
-        'linewidth', 1.2);
-    legend_vec{ind1} = sprintf('Series %i', ind1);
-end
-legend(legend_vec);
-subplot(3,1,1); hold off; axis tight;
-subplot(3,1,2); hold off; axis tight;
-subplot(3,1,3); hold off; axis tight;
-
-figure;
-for ind1 = 1:length(data)
-    plot3(data{ind1}(:, 1), data{ind1}(:,2), data{ind1}(:,3), ...
-        'color', cc(ind1,:), 'linewidth', 1.5);
-    hold on;
-end
-hold off;
-if isempty(plot_title)
-    title('3D Trajectories');
-else
-    title(sprintf('%s - 3D Trajectories', plot_title));
-end
-legend(legend_vec);
-xlabel('X'); ylabel('Y'); zlabel('Z');
-grid on;
-axis equal;
-
-end

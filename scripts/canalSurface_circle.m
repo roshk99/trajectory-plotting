@@ -1,4 +1,4 @@
-function [canal] = canalSurface(xn, yn, zn, N, B, R)
+function [canal] = canalSurface_circle(xn, yn, zn, N, B, R)
 % -----------------------------------------------------------------------
 % A function that calculates the canal for circular cross-sections
 %

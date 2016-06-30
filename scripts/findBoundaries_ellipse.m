@@ -1,4 +1,4 @@
-function [R1, R2, alpha_vec] = find_boundaries_ellipse2(reference, ...
+function [R1, R2, alpha_vec] = findBoundaries_ellipse(reference, ...
     curvesX, curvesY, curvesZ, T, N, B)
 % -----------------------------------------------------------------------
 % A function that finds the two radii and angle of orientation for ellipses
@@ -8,7 +8,7 @@ function [R1, R2, alpha_vec] = find_boundaries_ellipse2(reference, ...
 %   reference: the mean trajectory
 %   curvesX, curvesY, curvesZ: the x, y, and z components of the individual
 %                              trajectories
-%   T, N, B: part of the TNB reference frame for each data point
+%   T, B: part of the TNB reference frame for each data point
 %
 % Output:
 %   R1, R2: the major and minor radii of the ellipse
@@ -17,6 +17,8 @@ function [R1, R2, alpha_vec] = find_boundaries_ellipse2(reference, ...
 % -----------------------------------------------------------------------
 % Code: Roshni Kaushik 2016 (roshni.s.kaushik@gmail.com)
 % -----------------------------------------------------------------------
+
+neighborhood = 300;
 
 %Get dimensions
 point_num = size(reference, 1);
@@ -30,16 +32,23 @@ for ii = 1:point_num %For each point
     %Current Point
     point1 = reference(ii,:);
     
+    %Get indices around point
+    idx1 = ii-neighborhood;
+    idx1 = max(idx1, 1);
+    idx2 = ii+neighborhood;
+    idx2 = min(idx2, point_num);  
+    
     distances = zeros(trajectory_num, 1);
     max_point = zeros(trajectory_num, 3);
-    for jj = 1:trajectory_num %For each trajectory
+    for jj = 1:trajectory_num %For each trajectory     
         
         %Closest point to plane
-        min_func = T(1,ii)*(curvesX(:,jj) - point1(1)) + ...
-            T(2,ii)*(curvesY(:,jj) - point1(2)) + ...
-            T(3,ii)*(curvesZ(:,jj) - point1(3));
+        min_func = T(1,ii)*(curvesX(idx1:idx2,jj) - point1(1)) + ...
+            T(2,ii)*(curvesY(idx1:idx2,jj) - point1(2)) + ...
+            T(3,ii)*(curvesZ(idx1:idx2,jj) - point1(3));
         [~, ind2] = min(abs(min_func));
-        point2 = [curvesX(ind2, jj), curvesY(ind2, jj), curvesZ(ind2, jj)];
+        point2 = [curvesX(idx1-1+ind2, jj), curvesY(idx1-1+ind2, jj), ...
+            curvesZ(idx1-1+ind2, jj)];
         
         %Store temporary values
         max_point(jj, :) = point2;
@@ -52,26 +61,8 @@ for ii = 1:point_num %For each point
     new_center = [0,0];
     [a,b,vect_a,vect_b,alpha] = estimateEllipse(new_points', new_center');
     
-    
-%     [sorted_distances, indx] = sort(distances, 'ascend');
-%     
-%     %Get the point with the max distance
-%     a = sorted_distances(end);
-%     b = sorted_distances(end-1);
-%     
-%     maj_dist_point = max_point(indx(end), :);
-%     
-%     %Get the major axis vector
-%     vect_a = maj_dist_point - point1;
-%     vect_a = vect_a/norm(vect_a);
-%     vect_b = cross(vect_a, T(:,ii));
-%     vect_b = vect_b/norm(vect_b);
-%     
-%     %Angle between the major axis and N-axis
-%     alpha = acos(dot(vect_a, N(:,ii)));
-    
-    R1(ii) = a;
-    R2(ii) = b;
+    R1(ii) = 1.01*a;
+    R2(ii) = 1.01*b;
     alpha_vec(ii) = alpha;
     
 end

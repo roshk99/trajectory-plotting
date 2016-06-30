@@ -1,5 +1,5 @@
 function [Router, xyz_distance_vec] = ...
-    find_boundaries(reference, curvesX, curvesY, curvesZ)
+    findBoundaries_circle(reference, curvesX, curvesY, curvesZ)
 % -----------------------------------------------------------------------
 % A function that finds the radius of a circular cross-section covering a
 % set of trajectories using a plane approximation
@@ -70,7 +70,7 @@ for ii = 1:point_num %For each point
     
     
     %Store values
-    Router(ii) = max_val;
+    Router(ii) = 1.01*max_val;
     xyz_distance_vec(ii, :) = xyz_distance(max_ind, :);
 end
 end

@@ -143,7 +143,7 @@ if isempty(how_many)
         case 3
             how_many = 1:5;
         case 4
-            how_many = 1:3;
+            how_many = 1:5;
     end
 end
 
@@ -154,7 +154,7 @@ else
     plot_method = 'surface';
 end
 
-run_func(set_to_run, fit_type, plot_method, how_many, ...
+runFunction(set_to_run, fit_type, plot_method, how_many, ...
     handles);
 
 % --- Executes on button press in trajectory1.

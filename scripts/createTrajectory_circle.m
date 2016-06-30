@@ -1,31 +1,16 @@
-function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
-    howmany, view_vec, randomflag, points, plotSurface, ...
-    plotTrajectories, fit_type, plot_method, handles)
+function trajectories = createTrajectory_circle(values, randomflag, points)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates new trajectories based
 % on a canal surface approach
 %
 % Inputs:
-%   data: cell with each element point_numx3 vector of smoothed data
-%         (output of parsetrajectory.m)
-%   idx1, idx2: values in the beginning and end of trajectories will be
-%               eliminated when plotting the surface; data used will be
-%               from idx1 to end-idx2
-%   set_num: number of dataset, used for plotting
-%   howmany: which trajectories to include in analysis (a list of indices)
-%   view_vec: specify the view in the 3D plot (a vector with two numbers)
+%   values: contains parameters of the encoded demonstrations
 %   randomflag: boolean depending on whether you want random start
 %               points for trajectories to be generated
 %   points: if randomflag is true, points is an integer with the number of
 %           points to generate. if randomflag is false, points is a matrix
 %           of dimension point_num x 3 that has the initial points for the
 %           new trajectories
-%   plotSurface: boolean for plotting the canal surface
-%   plotTrajectories: boolean for plotting the generated trajectories
-%   fit_type: 'circle', 'ellipse', or 'bspline' based on type of surface
-%             desired
-%   plot_method: 'circles' or 'surface' based on desired plot
-%   handles: the gui object if using the canal visualization gui
 %
 % Output:
 %   trajectories: cell with each element point_numx3 vector of generated
@@ -34,11 +19,6 @@ function trajectories = create_trajectory(data, idx1, idx2, set_num, ...
 % -----------------------------------------------------------------------
 % Code: Roshni Kaushik 2016 (roshni.s.kaushik@gmail.com)
 % -----------------------------------------------------------------------
-
-%Calculate the boundary (see boundary_calculation function for contents of
-%values cell)
-values = boundary_calculation(data, set_num, view_vec, howmany, ...
-    idx1, idx2, plotSurface, fit_type, plot_method, handles);
 
 %Get the initial mean point
 mean_vec = [values(1).xmean, values(1).ymean, values(1).zmean];
@@ -54,12 +34,10 @@ if randomflag
     %of the canal
     initPoints = zeros(points, 3);
     for ii = 1:points
-        if strcmp(fit_type, 'circles')
-            initPoints(ii, :) = mean_vec(1,:) + ...
-                (2^-.5)*values(1).Router(1)*(-1+2*rand(1))*...
-                values(1).N(1,:) + (2^-.5)*values(1).Router(1)*...
-                (-1+2*rand(1))*values(1).B(1,:);
-        end
+        initPoints(ii, :) = mean_vec(1,:) + ...
+            (2^-.5)*values(1).Router(1)*(-1+2*rand(1))*...
+            values(1).N(1,:) + (2^-.5)*values(1).Router(1)*...
+            (-1+2*rand(1))*values(1).B(1,:);
     end
     
     %If initial points are specified
@@ -70,15 +48,8 @@ end
 %Compute the trajectory based on the output from the canal and initial
 %points
 for ii = 1:length(initPoints(:,1))
-    if strcmp(fit_type, 'circles')
-        trajectories{ii} = compute_trajectory(values, data_size, ...
-            initPoints(ii,:));
-    end
-end
-
-%Plot the new trajectories if desired
-if plotTrajectories
-    plot_trajectories(trajectories);
+    trajectories{ii} = compute_trajectory(values, data_size, ...
+        initPoints(ii,:));
 end
 
 end
@@ -129,13 +100,3 @@ for ii=2:data_size
 end
 end
 
-
-function plot_trajectories(trajs)
-hold on;
-for ii = 1:length(trajs)
-    plot3(trajs{ii}(:,1), trajs{ii}(:,2), trajs{ii}(:,3), 'g', ...
-        'Linewidth', 2);
-end
-hold off;
-set(gcf, 'Position', get(0, 'Screensize'));
-end
