@@ -1,13 +1,13 @@
-function traj = runFunction(set_num, fit_type, plot_method, how_many, handles)
+function runFunction(set_num, fit_type, plot_method, how_many, handles)
     %Parameters
     end_point = [Inf,Inf,Inf;0,0,0;Inf,Inf,Inf;0,0,0;Inf,Inf,Inf];
-    idx1 = [1,200,250,275,200];
-    idx2 = [0,200,200,200,200];
+    idx1 = [1,200,250,275,225];
+    idx2 = [0,200,200,200,225];
     plotRawTrajectories = false;
     plotSmoothTrajectories = false;
     plotComponents = false;
     plotSurface = true;
-    plotNewTrajectories = true;
+    plotNewTrajectories = false;
     point_num = 5000;
     random_flag = 1;
     span = 0.15;
@@ -37,10 +37,8 @@ function traj = runFunction(set_num, fit_type, plot_method, how_many, handles)
     mean_vals{2} = values(1).ymean;
     mean_vals{3} = values(1).zmean;
     
-%     plotting(raw_data, data, mean_vals, canal, traj, plotRawTrajectories, ...
-%         plotSmoothTrajectories, plotComponents, plotSurface, ...
-%         plotNewTrajectories, plot_method, set_num, fit_type, ...
-%         view_vec(set_num+1,:), handles);
-    
-    record_video(data, view_vec(set_num+1,:));
+    plotting(raw_data, data, mean_vals, canal, traj, plotRawTrajectories, ...
+        plotSmoothTrajectories, plotComponents, plotSurface, ...
+        plotNewTrajectories, how_many, plot_method, set_num, fit_type, ...
+        view_vec(set_num+1,:), handles);   
 end

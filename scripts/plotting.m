@@ -1,8 +1,17 @@
 function plotting(raw_data, data, mean_vals, canal, traj, ...
     plotRawTrajectories, plotSmoothTrajectories, plotComponents, ...
-    plotSurface, plotNewTrajectories, plot_method, set_num, ...
+    plotSurface, plotNewTrajectories, how_many, plot_method, set_num, ...
     fit_type, view_vec, handles)
-
+new_data = {};
+new_data_raw = {};
+counter = 1;
+for ind1=how_many
+    new_data{counter} = data{ind1};
+    new_data_raw{counter} = raw_data{ind1};
+    counter = counter+1;
+end
+data = new_data;
+raw_data = new_data_raw;
 
 if plotRawTrajectories
     plotTitle1 = sprintf('Series %i - Raw Data', set_num);
