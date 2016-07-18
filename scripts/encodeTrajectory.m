@@ -71,8 +71,8 @@ if strcmp(fit_type, 'circles')
     RRouter = Router(idx1:end-idx2);
     canal = canalSurface_circle(xx2,yy2,zz2,N, B, RRouter);
     
-    values(1).Router = Router(idx1:end-idx2);
-    values(1).xyz_distance = xyz_distance;
+    values(1).Router = RRouter;
+    values(1).xyz_distance = xyz_distance(idx1:end-idx2,:);
 elseif strcmp(fit_type, 'ellipses')    
     RR1 = R1(idx1:end-idx2);
     RR2 = R2(idx1:end-idx2);

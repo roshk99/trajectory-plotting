@@ -1,17 +1,20 @@
-function plotting(raw_data, data, mean_vals, canal, traj, ...
+function plotting(raw_data, data, mean_vals, canal, traj, Router, ...
     plotRawTrajectories, plotSmoothTrajectories, plotComponents, ...
     plotSurface, plotNewTrajectories, how_many, plot_method, set_num, ...
     fit_type, view_vec, handles)
+
+plotBoundaries = false;
+
 new_data = {};
-new_data_raw = {};
+%new_data_raw = {};
 counter = 1;
 for ind1=how_many
     new_data{counter} = data{ind1};
-    new_data_raw{counter} = raw_data{ind1};
+    %new_data_raw{counter} = raw_data{ind1};
     counter = counter+1;
 end
 data = new_data;
-raw_data = new_data_raw;
+%raw_data = new_data_raw;
 
 if plotRawTrajectories
     plotTitle1 = sprintf('Series %i - Raw Data', set_num);
@@ -22,7 +25,6 @@ if plotSmoothTrajectories
     plotTitle1 = sprintf('Series %i - Smoothed Data', set_num);
     plot_data(data, view_vec, plotComponents, plotTitle1);
 end
-
 
 %Plot the canal surface
 plotTitle2 = sprintf('Series %i using %s', set_num, fit_type);
@@ -36,6 +38,9 @@ if plotNewTrajectories
     plot_trajectories(traj);
 end
 
+if plotBoundaries
+    plot_boundaries(data, mean_vals, Router, traj);
+end
 end
 
 function plot_data(data, view_vec, plotComponents, plotTitle)
@@ -85,71 +90,51 @@ end
 
 end
 
-function plot_boundaries(data, B, xyz_distance, numDemos, threshold)
+function plot_boundaries(data, mean_vals, Router, traj)
 %Plots the boundaries in x, y, and z direction
-
-%Plots the mean, trajectories, and boundary with an extra threshold
-figure;
-subplot(2,3,1);
+%figure;
+subplot(3,3,3);
 hold on;
-for ii=1:numDemos
-    plot(data{ii}(:,1),'k');
+for ii=1:length(data)
+    plot(data{ii}(:,1),'r');
 end
-plot(B(2).xmean, 'b');
-plot(xyz_distance(:,1)+B(2).xmean + threshold, 'r');
-plot(-xyz_distance(:,1)+B(2).xmean - threshold, 'r');
-title(sprintf('Set %i - X', set_num));axis square;grid;
-hold off;
+plot(mean_vals{1},'b','Linewidth', 1.5);
+for ii=1:length(traj)
+   plot(traj{ii}(:,1),'g'); 
+end
+threshold = 0.01;
+plot(mean_vals{1}+Router+threshold, 'k', 'Linewidth', 1.5);
+plot(mean_vals{1}-Router-threshold, 'k', 'Linewidth', 1.5);
+ylabel('X');axis tight; grid on; hold off;
+title('Obstacle Avoidance Task');
 
-subplot(2,3,2);
+subplot(3,3,6);
 hold on;
-for ii=1:numDemos
-    plot(data{ii}(:,2),'k');
+for ii=1:length(data)
+    plot(data{ii}(:,2),'r');
 end
-plot(B(2).ymean, 'b');
-plot(xyz_distance(:,2)+B(2).ymean + threshold, 'r');
-plot(-xyz_distance(:,2)+B(2).ymean - threshold, 'r');
-title(sprintf('Set %i - Y', set_num));axis square;grid;
-hold off;
+plot(mean_vals{2},'b', 'Linewidth', 1.5);
+for ii=1:length(traj)
+   plot(traj{ii}(:,2),'g'); 
+end
+threshold = 0.01;
+plot(mean_vals{2}+Router+threshold, 'k', 'Linewidth', 1.5);
+plot(mean_vals{2}-Router-threshold, 'k', 'Linewidth', 1.5);
+ylabel('Y');axis tight;grid on; hold off;
 
-subplot(2,3,3);
+subplot(3,3,9);
 hold on;
-for ii=1:numDemos
-    plot(data{ii}(:,3),'k');
+for ii=1:length(data)
+    plot(data{ii}(:,3),'r');
 end
-plot(B(2).zmean, 'b');
-plot(xyz_distance(:,3)+B(2).zmean + threshold, 'r');
-plot(-xyz_distance(:,3)+B(2).zmean - threshold, 'r');
-title(sprintf('Set %i - Z', set_num));axis square;grid;
-hold off;
-
-%Plots the data - mean and boundary
-subplot(2,3,4);
-hold on;
-for ii=1:numDemos
-    plot(data{ii}(:,1)-B(2).xmean,'k');
+plot(mean_vals{3},'b', 'Linewidth', 1.5);
+for ii=1:length(traj)
+   plot(traj{ii}(:,3),'g'); 
 end
-plot(xyz_distance(:,1) + threshold, 'b');
-title('Bound X');axis square;grid;
-hold off;
-
-subplot(2,3,5);
-hold on;
-for ii=1:numDemos
-    plot(data{ii}(:,2)-B(2).xmean,'k');
-end
-plot(xyz_distance(:,2) + threshold, 'b');
-title('Bound Y');axis square;grid;
-hold off;
-
-subplot(2,3,6);
-hold on;
-for ii=1:numDemos
-    plot(data{ii}(:,3)-B(2).xmean,'k');
-end
-plot(xyz_distance(:,1) + threshold, 'b');
-title('Bound Z');axis square;grid;
-hold off;
+threshold = 0.01;
+plot(mean_vals{3}+Router+threshold, 'k', 'Linewidth', 1.5);
+plot(mean_vals{3}-Router-threshold, 'k', 'Linewidth', 1.5);
+ylabel('Z');axis tight;grid on; box on; hold off;
 end
 
 function plot_surface(mean_vals, data, canal, view_vec, ...
