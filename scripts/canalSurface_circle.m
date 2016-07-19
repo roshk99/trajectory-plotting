@@ -16,7 +16,7 @@ function [canal] = canalSurface_circle(xn, yn, zn, N, B, R)
 
 tc = 0:0.01:1; % arc-length on the circle
 stepc = fix(0.01*length(xn)); % 10% of the data is used
-L = length(1:stepc:xn);
+L = length(1:stepc:length(xn));
 allC1 = zeros(3,length(tc),L);
 k = 1;
 for ii = 1:stepc:length(xn)
