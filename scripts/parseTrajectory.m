@@ -47,6 +47,9 @@ elseif set_num == 3
 elseif set_num == 4
     load dataset4;
     raw_vars = {dataset4_3, dataset4_4, dataset4_5, dataset4_6, dataset4_7};
+elseif set_num == 5
+    load dataset5;
+    raw_vars = {dataset5_1, dataset5_2, dataset5_3, dataset5_4};
 else
     fprintf('Error Occurred - Dataset %i not available', set_num);
     return;

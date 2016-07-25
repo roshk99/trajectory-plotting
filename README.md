@@ -1,11 +1,11 @@
 # trajectory-planning
 ***This project takes raw trajectories and creates a canal surface around them. This will allow for trajectory reproduction given an initial point.***
 
-*Run `canal_visualization_gui` to play with the canal surface options with a GUI or run `main.m` to see the intermediate steps*
+* Run `canal_visualization_gui` to play with the canal surface options with a GUI or run `main.m` to see the intermediate steps (parameters stored in `scripts/runFunction.m`)*
 
 ###Canal Visualization Options
 * Dataset
-	* Choose one of 4 datasets. Dataset 0 has artificial data and the remainder have experimental data
+	* Choose one of 5 datasets. Dataset 0 has artificial data and the remainder have experimental data
 * Type of Canal
 	* Choose either circles or ellipses as cross-sections
 * Trajectories
@@ -13,28 +13,16 @@
 * Plot Type
 	* Plot with either individual circles or the surface (surface takes more graphics and is much slower)
 
-###Animation and Reproduction (in progress)
-* The animation and reproduction portions of this project are in progress. Check back later!
+###Animation
+* `scripts/runFunction.m` contains the demonstrations, mean trajectory, canal surface, and reproductions. This can be used along with the Robotics Toolbox for animation purposes. Obselete code to this end is in `scripts/animate.m`.
 
 ###Prerequisites
-* MATLAB
-* Robotics Toolbox (Peter Corke)
-* FFMPEG (Media Editing Software)
-* Bulk Rename Utility (or similar)
-
-###Setup
-* Follow instructions from the Robotics Toolbox for setup
-    * Add toolbox to the path
-    * Run startup.m in rvctools folder
-* Download FFMPEG
-    * Make sure it is added to your path
+* MATLAB (along with Curve Fitting Toolbox)
+* Robotics Toolbox (Peter Corke) for animation
 
 ###Running
+* Run the following commands first:
+	* `addpath('scripts'); addpath('data');`
 * Run main.m from the scripts folder with the desired options
     * Dataset number, type of canal, boundary calculation method, plot type
-
-###Images to Video (Use Bulk Rename Utility or similar)
-* Put all the image files from a given dataset in the same folder (need to rename so that the filenames do not overlap, but they stay in numeric order)
-* Rename the files so that the first one is 0000.png and so on
-* Open a terminal and navigate to the folder with all the image files
-* Run the following command: `ffmpeg -r 10 -i %04d.png out.avi` replacing __out__ with your video file name
+* Adjust parameters in `scripts/runFunction.m`

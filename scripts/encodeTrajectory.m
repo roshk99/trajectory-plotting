@@ -1,5 +1,5 @@
 function [values, canal] = encodeTrajectory(data, howmany, idx1, ...
-    idx2, fit_type)
+    idx2, neighborhood, fit_type)
 % -----------------------------------------------------------------------
 % A function that takes smoothed data and generates a canal surface
 %
@@ -10,6 +10,7 @@ function [values, canal] = encodeTrajectory(data, howmany, idx1, ...
 %   idx1, idx2: values in the beginning and end of trajectories will be
 %               eliminated when plotting the surface; data used will be
 %               from idx1 to end-idx2
+%   neighborhood: +/- the number of points to check to find the radius
 %   fit_type: 'circle', 'ellipse', or 'bspline' based on type of surface
 %             desired
 %
@@ -51,10 +52,10 @@ xyz_mean = [mean(allXs, 2), mean(allYs, 2), mean(allZs, 2)];
 %Finds the boundary values (radii and orientation vectors)
 if strcmp(fit_type, 'circles')
     [Router, xyz_distance] = findBoundaries_circle(xyz_mean, allXs, allYs, ...
-        allZs);
+        allZs, neighborhood);
 elseif strcmp(fit_type, 'ellipses')
     [R1, R2, alpha] = findBoundaries_ellipse(xyz_mean, ...
-        allXs, allYs, allZs, T, N, B);
+        allXs, allYs, allZs, T, N, B, neighborhood);
 end
 
 

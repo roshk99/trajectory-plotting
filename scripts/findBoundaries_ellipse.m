@@ -1,5 +1,5 @@
 function [R1, R2, alpha_vec] = findBoundaries_ellipse(reference, ...
-    curvesX, curvesY, curvesZ, T, N, B)
+    curvesX, curvesY, curvesZ, T, N, B, neighborhood)
 % -----------------------------------------------------------------------
 % A function that finds the two radii and angle of orientation for ellipses
 % as cross sections
@@ -8,8 +8,8 @@ function [R1, R2, alpha_vec] = findBoundaries_ellipse(reference, ...
 %   reference: the mean trajectory
 %   curvesX, curvesY, curvesZ: the x, y, and z components of the individual
 %                              trajectories
-%   T, B: part of the TNB reference frame for each data point
-%
+%   T, N, B: part of the TNB reference frame for each data point
+%   neighborhood: +/- the number of points to check to find the radius
 % Output:
 %   R1, R2: the major and minor radii of the ellipse
 %   alpha: the angle between the major axis and the N-axis
@@ -17,8 +17,6 @@ function [R1, R2, alpha_vec] = findBoundaries_ellipse(reference, ...
 % -----------------------------------------------------------------------
 % Code: Roshni Kaushik 2016 (roshni.s.kaushik@gmail.com)
 % -----------------------------------------------------------------------
-
-neighborhood = 300;
 
 %Get dimensions
 point_num = size(reference, 1);

@@ -93,7 +93,8 @@ end
 function plot_boundaries(data, mean_vals, Router, traj)
 %Plots the boundaries in x, y, and z direction
 %figure;
-subplot(3,3,3);
+figure;
+subplot(3,1,1);
 hold on;
 for ii=1:length(data)
     plot(data{ii}(:,1),'r');
@@ -108,7 +109,7 @@ plot(mean_vals{1}-Router-threshold, 'k', 'Linewidth', 1.5);
 ylabel('X');axis tight; grid on; hold off;
 title('Obstacle Avoidance Task');
 
-subplot(3,3,6);
+subplot(3,1,2);
 hold on;
 for ii=1:length(data)
     plot(data{ii}(:,2),'r');
@@ -122,7 +123,7 @@ plot(mean_vals{2}+Router+threshold, 'k', 'Linewidth', 1.5);
 plot(mean_vals{2}-Router-threshold, 'k', 'Linewidth', 1.5);
 ylabel('Y');axis tight;grid on; hold off;
 
-subplot(3,3,9);
+subplot(3,1,3);
 hold on;
 for ii=1:length(data)
     plot(data{ii}(:,3),'r');
