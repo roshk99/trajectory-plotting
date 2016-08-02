@@ -65,6 +65,7 @@ yy2 = xyz_mean(idx1:end-idx2, 2);
 zz2 = xyz_mean(idx1:end-idx2, 3);
 N = N(:, idx1:end-idx2);
 B = B(:, idx1:end-idx2);
+T = T(:, idx1:end-idx2);
 values = struct([]);
 
 %Get the canal surface depending on the fit type
@@ -79,6 +80,10 @@ elseif strcmp(fit_type, 'ellipses')
     RR2 = R2(idx1:end-idx2);
     alpha = alpha(idx1:end-idx2);
     canal = canalSurface_ellipse(xx2, yy2, zz2, N, B, RR1, RR2, alpha);
+    
+    values(1).R1 = RR1;
+    values(1).R2 = RR2;
+    values(1).alpha = alpha;
 end
 
 %Populate remaining values into output cell

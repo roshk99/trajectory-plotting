@@ -1,4 +1,8 @@
-function styles(setnum)
+function styles(setnum, handles)
+if isa(handles, 'struct')
+    axes(handles.axes1);
+end
+
 if setnum == 1
     %Set 1
     hold on;
@@ -24,7 +28,10 @@ end
 %All
 axis equal; grid on; box on; xlabel('X'); ylabel('Y'); zlabel('Z');
 hold off;
-set(gcf, 'Position', get(0, 'Screensize'));
 title('');
 sdf('custom1');
+
+if ~isa(handles, 'struct')
+    set(gcf, 'Position', get(0, 'Screensize'));
+end
 end

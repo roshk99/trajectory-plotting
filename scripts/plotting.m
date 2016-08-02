@@ -1,37 +1,29 @@
 function plotting(raw_data, data, mean_vals, canal, traj, Router, ...
     plotRawTrajectories, plotSmoothTrajectories, plotComponents, ...
-    plotSurface, plotNewTrajectories, how_many, plot_method, set_num, ...
-    fit_type, view_vec, handles)
-
-plotBoundaries = false;
+    plotSurface, plotNewTrajectories, plotBoundaries, how_many, ...
+    plot_method, handles)
 
 new_data = {};
-%new_data_raw = {};
+new_data_raw = {};
 counter = 1;
 for ind1=how_many
     new_data{counter} = data{ind1};
-    %new_data_raw{counter} = raw_data{ind1};
+    new_data_raw{counter} = raw_data{ind1};
     counter = counter+1;
 end
 data = new_data;
-%raw_data = new_data_raw;
+raw_data = new_data_raw;
 
 if plotRawTrajectories
-    plotTitle1 = sprintf('Series %i - Raw Data', set_num);
-    plot_data(raw_data, view_vec, plotComponents, plotTitle1);
+    plot_data(raw_data, view_vec, plotComponents);
 end
 
 if plotSmoothTrajectories
-    plotTitle1 = sprintf('Series %i - Smoothed Data', set_num);
-    plot_data(data, view_vec, plotComponents, plotTitle1);
+    plot_data(data, view_vec, plotComponents);
 end
 
-%Plot the canal surface
-plotTitle2 = sprintf('Series %i using %s', set_num, fit_type);
-
 if plotSurface
-    plot_surface(mean_vals, data, canal, view_vec, ...
-        plot_method, handles, plotTitle2);
+    plot_surface(mean_vals, data, canal, plot_method, handles);
 end
 
 if plotNewTrajectories
@@ -43,8 +35,8 @@ if plotBoundaries
 end
 end
 
-function plot_data(data, view_vec, plotComponents, plotTitle)
-
+function plot_data(data, plotComponents)
+%Plot the demonstrations and the demonstrations separated into components
 cc = jet(length(data));
 
 figure; hold on;
@@ -55,10 +47,8 @@ for ind1 = 1:length(data)
     legend_vec{ind1} = sprintf('Series %i', ind1);
 end
 hold off;
-title(sprintf('%s - 3D Trajectories', plotTitle));
 legend(legend_vec);
 xlabel('X'); ylabel('Y'); zlabel('Z');
-view(view_vec);
 grid on;
 axis equal;
 set(gcf, 'Position', get(0, 'Screensize'));
@@ -66,7 +56,7 @@ set(gcf, 'Position', get(0, 'Screensize'));
 if plotComponents
     figure;
     set(gcf, 'Position', get(0, 'Screensize'));
-    subplot(3,1,1); hold all; title(sprintf('%s - X Component', plotTitle));
+    subplot(3,1,1); hold all;
     subplot(3,1,2); hold all; title('Y Component');
     subplot(3,1,3); hold all; title('Z Component');
     
@@ -91,8 +81,8 @@ end
 end
 
 function plot_boundaries(data, mean_vals, Router, traj)
-%Plots the boundaries in x, y, and z direction
-%figure;
+%Plots the boundaries in x, y, and z direction (only for circles)
+
 figure;
 subplot(3,1,1);
 hold on;
@@ -107,7 +97,6 @@ threshold = 0.01;
 plot(mean_vals{1}+Router+threshold, 'k', 'Linewidth', 1.5);
 plot(mean_vals{1}-Router-threshold, 'k', 'Linewidth', 1.5);
 ylabel('X');axis tight; grid on; hold off;
-title('Obstacle Avoidance Task');
 
 subplot(3,1,2);
 hold on;
@@ -138,9 +127,8 @@ plot(mean_vals{3}-Router-threshold, 'k', 'Linewidth', 1.5);
 ylabel('Z');axis tight;grid on; box on; hold off;
 end
 
-function plot_surface(mean_vals, data, canal, view_vec, ...
-    plot_method, handles, plotTitle)
-%Plots the canal surface
+function plot_surface(mean_vals, data, canal, plot_method, handles)
+%Plots the canal surface, directrix, and demonstrations
 
 if isa(handles, 'struct')
     axes(handles.axes1);
@@ -171,17 +159,14 @@ for ii=1:length(data)
 end
 
 if ~isa(handles, 'struct')
-    title(plotTitle);
     set(gcf, 'Position', get(0, 'Screensize'));
 end
 
-xlabel('X'); ylabel('Y'); zlabel('Z');
-view(view_vec);
-axis equal;
 hold off;
 end
 
 function plot_trajectories(trajs)
+%Plots the reproductions
 hold on;
 for ii = 1:length(trajs)
     plot3(trajs{ii}(:,1), trajs{ii}(:,2), trajs{ii}(:,3), 'g', ...
